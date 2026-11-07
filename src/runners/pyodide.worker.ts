@@ -56,16 +56,17 @@ self.onmessage = async (ev: MessageEvent<Req | { init: true; base: string; stdli
     py.globals.set('_cl_files', py.toPy(files ?? {}));
     py.globals.set('_cl_argv', py.toPy(['main.py', ...(argv ?? [])]));
     await py.runPythonAsync([
-      'import sys, os, tempfile',
-      'os.chdir(tempfile.mkdtemp())',
-      'for _n, _c in dict(_cl_files).items():',
-      '    os.makedirs(os.path.dirname(_n) or ".", exist_ok=True)',
-      '    open(_n, "w").write(_c)',
-      'sys.argv = list(_cl_argv)',
+      'import sys as _sys, os as _os, tempfile as _tempfile',
       'for _k in [k for k in list(globals()) if not k.startswith("_")]:',
       '    del globals()[_k]',
-      'for _m in [m for m in list(sys.modules) if m in ("ledger", "entry", "storage", "report", "cli")]:',
-      '    del sys.modules[_m]',
+      'for _m in [m for m in list(_sys.modules) if m in ("ledger", "entry", "storage", "report", "cli")]:',
+      '    del _sys.modules[_m]',
+      '_os.chdir(_tempfile.mkdtemp())',
+      'for _n, _c in dict(_cl_files).items():',
+      '    _os.makedirs(_os.path.dirname(_n) or ".", exist_ok=True)',
+      '    open(_n, "w").write(_c)',
+      '_sys.argv = list(_cl_argv)',
+      'globals()["__name__"] = "__main__"',
     ].join('\n'));
     let exitCode = 0;
     try {
