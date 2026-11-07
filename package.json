@@ -9,6 +9,7 @@
     "dev": "npm run prepare:pyodide && vite",
     "build": "npm run prepare:pyodide && tsc -p tsconfig.json --noEmit && vite build",
     "preview": "vite preview",
+    "build:artifact": "npm run prepare:pyodide && CYBERLING_TARGET=artifact vite build && node scripts/postbuild-artifact.mjs",
     "test": "vitest run",
     "content:check": "vitest run tests/content.test.ts",
     "android:add": "npx cap add android",

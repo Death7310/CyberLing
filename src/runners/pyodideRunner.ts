@@ -30,7 +30,7 @@ export class PyodideRunner implements CodeRunner {
       };
       this.worker!.onerror = (e) => { this.onStatus?.('error'); reject(new Error(e.message)); };
     });
-    this.worker.postMessage({ init: true, base });
+    this.worker.postMessage({ init: true, base, stdlib: import.meta.env.VITE_PYODIDE_STDLIB ?? 'python_stdlib.zip' });
     return this.ready;
   }
 

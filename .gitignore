@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-artifact/
 public/pyodide/
 .DS_Store
 *.log

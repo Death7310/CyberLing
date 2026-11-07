@@ -18,9 +18,11 @@ async function load(): Promise<PyodideLike> {
   if (pyodide) return pyodide;
   if (!loading) {
     loading = (async () => {
-      const base = (self as unknown as { __PYODIDE_BASE__?: string }).__PYODIDE_BASE__ ?? '/pyodide/';
-      const mod = (await import(/* @vite-ignore */ base + 'pyodide.mjs')) as { loadPyodide: (o: { indexURL: string }) => Promise<PyodideLike> };
-      const py = await mod.loadPyodide({ indexURL: base });
+      const g = self as unknown as { __PYODIDE_BASE__?: string; __PYODIDE_STDLIB__?: string };
+      const base = g.__PYODIDE_BASE__ ?? '/pyodide/';
+      const mod = (await import(/* @vite-ignore */ base + 'pyodide.mjs')) as { loadPyodide: (o: { indexURL: string; stdLibURL?: string }) => Promise<PyodideLike> };
+      // Some hosts refuse to serve .zip; the artifact build renames the stdlib archive, so its name is configurable.
+      const py = await mod.loadPyodide({ indexURL: base, stdLibURL: base + (g.__PYODIDE_STDLIB__ ?? 'python_stdlib.zip') });
       pyodide = py;
       (self as unknown as Worker).postMessage({ ready: true } satisfies Res);
       return py;
@@ -29,10 +31,12 @@ async function load(): Promise<PyodideLike> {
   return loading;
 }
 
-self.onmessage = async (ev: MessageEvent<Req | { init: true; base: string }>) => {
+self.onmessage = async (ev: MessageEvent<Req | { init: true; base: string; stdlib: string }>) => {
   const data = ev.data;
   if ('init' in data) {
-    (self as unknown as { __PYODIDE_BASE__?: string }).__PYODIDE_BASE__ = data.base;
+    const g = self as unknown as { __PYODIDE_BASE__?: string; __PYODIDE_STDLIB__?: string };
+    g.__PYODIDE_BASE__ = data.base;
+    g.__PYODIDE_STDLIB__ = data.stdlib;
     try { await load(); } catch (e) { (self as unknown as Worker).postMessage({ id: -1, error: String(e) } satisfies Res); }
     return;
   }
