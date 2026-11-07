@@ -6,7 +6,7 @@
 |---|---|---|
 | Laptop (any OS) | Browser, or install as a PWA from the address bar. Offline after first load; Pyodide is precached. | Built and verified (`npm run build`, Playwright walkthrough). |
 | Android APK | Capacitor wraps `dist/` in a WebView (`android/`). `npm run android:sync` then Gradle. | Project generated and committed; APK compile requires the Android SDK (not present in the build container used to author this). |
-| Desktop shell | Electron or Tauri can wrap `dist/` identically; not added yet because the PWA already covers laptops. | Not started. |
+| Desktop (Mac, Windows, Linux) | Electron shell in `desktop/`, serving the relocatable build over a private `app://` scheme. Native runner executes code with installed toolchains. Installers via electron-builder in CI. | Built and verified under Xvfb with Playwright: C compiled by system gcc, Python by system CPython. |
 
 Stack: React 19, TypeScript, Vite 8, CodeMirror 6, Zustand (persisted to `localStorage`), vite-plugin-pwa (Workbox), Capacitor 8.
 
@@ -16,6 +16,7 @@ The hard constraint for a phone app that teaches C, C++ and C# is that those too
 
 | Language | Runner | Offline? | Notes |
 |---|---|---|---|
+| any (desktop) | `NativeRunner` via Electron IPC → `desktop/local-runner.mjs` | Yes | Detects `python3`/`python`/`py`, `gcc`/`clang`, `g++`/`clang++`, `dotnet`. Runs in a fresh temp directory with fixture files and argv; 30 s default timeout; kills process trees on Windows with `taskkill`. C# uses a persistent temp console project so builds are incremental. `SmartRunner` falls back to the rows below when a toolchain is missing. |
 | Python | `PyodideRunner`: CPython in WebAssembly, in a **Web Worker**. | Yes | ~14 MB bundled from the `pyodide` npm package into `public/pyodide/` at build time (`scripts/copy-pyodide.mjs`). Runs are killed after 8 s by terminating the worker; stdin is fed from the test case; the namespace is reset between runs. |
 | C, C++, C# | `RemoteRunner`: POSTs to a Piston-compatible `/execute` endpoint. | No | Default endpoint is the public `emkc.org` instance (rate-limited, third-party). For a class or real deployment self-host Piston (`docker run -d -p 2000:2000 ghcr.io/engineer-man/piston`) and set the endpoint in Settings. When offline, `modify`/`create` steps show the reference solution and let the learner self-mark; reading/assembling steps work fully. |
 | shell / text | none | n/a | Cloud tracks never execute commands in-app; `fieldwork` steps are performed in the learner's own account with a verification question. |
@@ -33,6 +34,12 @@ Future options for offline compiled languages, in order of realism: a WASM build
 ## Tests
 
 `npm test` runs: schema validation of every track; uniqueness of ids; Parsons solutions pass and distractors fail; cloze canonical answers pass; **every Python and C reference solution is executed with the real interpreter/compiler against its own tests, and every `modify` starter is checked to fail them** (so there is always something to modify); scheduler behaviour; checker behaviour.
+
+## Desktop security model
+
+- Renderer runs with `contextIsolation`, `sandbox: true`, no Node integration. The preload exposes four functions on `window.cyberlingNative`.
+- IPC validates language, size limits, and rejects absolute or parent-relative fixture paths.
+- Learner code runs as a child process with the user's own privileges, in a temp directory. That is the point of the desktop app (real tools), and it means the same trust as running a script in a terminal: the app does not download or execute code from the network.
 
 ## Security notes
 

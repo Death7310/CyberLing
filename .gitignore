@@ -9,3 +9,4 @@ coverage/
 
 # Capacitor copies dist/ here on every `cap sync`; regenerate, do not commit
 android/app/src/main/assets/public/
+release/

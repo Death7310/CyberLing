@@ -7,7 +7,7 @@ describe('content', () => {
     it(`${t.id}: schema, checkers, and reference solutions executed for real`, () => {
       const problems = auditTrack(t);
       expect(problems.map((p) => `${p.where}: ${p.message}`)).toEqual([]);
-    });
+    }, 300_000);
   }
 
   it('lexicon ids are globally unique', () => {

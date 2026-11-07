@@ -3,7 +3,8 @@ import type { Lesson, LexiconEntry, Module, Step, Track, TrackId } from '../curr
 import { tracks, trackById } from '../curriculum';
 import { isDue, orderQueue, type Grade } from '../learning/srs';
 import { lessonKey, useStore } from '../store';
-import { pyodideRunner, getExecutionEndpoint, DEFAULT_PISTON_ENDPOINT } from '../runners';
+import { pyodideRunner, getExecutionEndpoint, DEFAULT_PISTON_ENDPOINT, isDesktop, toolchains } from '../runners';
+import type { Toolchains } from '../native';
 import { ConceptView } from '../exercises/ConceptView';
 import { PredictView } from '../exercises/PredictView';
 import { ParsonsView } from '../exercises/ParsonsView';
@@ -301,6 +302,37 @@ export function MethodPage() {
 
 /* ---------- Settings ---------- */
 
+const TOOL_LABELS: Record<keyof Toolchains, string> = { python: 'Python', c: 'C compiler', cpp: 'C++ compiler', csharp: '.NET SDK (C#)' };
+const INSTALL_HINTS: Record<string, Record<keyof Toolchains, string>> = {
+  darwin: { python: 'brew install python  (or python.org)', c: 'xcode-select --install  (installs clang)', cpp: 'xcode-select --install  (installs clang++)', csharp: 'brew install --cask dotnet-sdk  (or dot.net)' },
+  win32: { python: 'winget install Python.Python.3.12', c: 'winget install LLVM.LLVM  (clang) or MSYS2 + mingw-w64 gcc', cpp: 'winget install LLVM.LLVM  (clang++) or MSYS2 + mingw-w64 g++', csharp: 'winget install Microsoft.DotNet.SDK.8' },
+  linux: { python: 'sudo apt install python3', c: 'sudo apt install build-essential', cpp: 'sudo apt install build-essential', csharp: 'sudo apt install dotnet-sdk-8.0' },
+};
+
+function ToolchainsCard() {
+  const [tools, setTools] = useState<Toolchains | null>(null);
+  const [busy, setBusy] = useState(false);
+  const load = (refresh: boolean) => { setBusy(true); toolchains(refresh).then(setTools).finally(() => setBusy(false)); };
+  useEffect(() => { load(false); }, []);
+  const platform = window.cyberlingNative?.platform ?? 'linux';
+  const hints = INSTALL_HINTS[platform] ?? INSTALL_HINTS.linux;
+  return (
+    <div className="card">
+      <h3>Toolchains on this computer</h3>
+      <p className="small muted">The desktop app runs your code with the real tools installed here: no sandbox, no time limit worth noticing, no network. Missing ones fall back to the in-app Python runtime or the execution service.</p>
+      {!tools && <p className="muted small">Detecting…</p>}
+      {tools && (Object.keys(TOOL_LABELS) as (keyof Toolchains)[]).map((k) => (
+        <div key={k} className="row" style={{ padding: '6px 0', borderTop: '1px solid var(--border)' }}>
+          <span style={{ minWidth: 140 }}>{TOOL_LABELS[k]}</span>
+          {tools[k] ? <span className="pill ok">{tools[k]!.cmd} {tools[k]!.version}</span> : <span className="pill warn">not found</span>}
+          {!tools[k] && <code className="inline-code small">{hints[k]}</code>}
+        </div>
+      ))}
+      <div className="row" style={{ marginTop: 8 }}><button className="btn small secondary" disabled={busy} onClick={() => load(true)}>{busy ? 'Checking…' : 'Re-detect'}</button></div>
+    </div>
+  );
+}
+
 export function SettingsPage() {
   const endpoint = useStore((s) => s.executionEndpoint);
   const setEndpoint = useStore((s) => s.setEndpoint);
@@ -310,8 +342,9 @@ export function SettingsPage() {
   return (
     <div className="stack">
       <h1>Settings</h1>
+      {isDesktop() && <ToolchainsCard />}
       <div className="card">
-        <h3>Python runtime</h3>
+        <h3>Python runtime{isDesktop() ? ' (fallback)' : ''}</h3>
         <p className="small muted">{pyodideRunner.description}</p>
         <div className="row"><span className="pill">{pyStatus}</span><button className="btn small secondary" onClick={() => pyodideRunner.warmUp().then(() => setPyStatus('ready')).catch((e) => setPyStatus('error: ' + e))}>Load now</button></div>
       </div>
