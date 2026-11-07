@@ -1,4 +1,4 @@
-import type { CodeRunner, RunResult } from './types';
+import type { CodeRunner, RunOptions, RunResult } from './types';
 
 /** Python in the browser via Pyodide (CPython compiled to WebAssembly). Works offline once cached. */
 export class PyodideRunner implements CodeRunner {
@@ -43,7 +43,7 @@ export class PyodideRunner implements CodeRunner {
     return typeof Worker !== 'undefined' && typeof WebAssembly !== 'undefined';
   }
 
-  async run(source: string, stdin = '', timeoutMs = 8000): Promise<RunResult> {
+  async run(source: string, stdin = '', timeoutMs = 8000, options: RunOptions = {}): Promise<RunResult> {
     try {
       await this.warmUp();
     } catch (e) {
@@ -62,7 +62,7 @@ export class PyodideRunner implements CodeRunner {
         resolve({ stdout: '', stderr: `Stopped after ${timeoutMs / 1000}s. Is there a loop that never ends?`, exitCode: 1, timedOut: true, ms: timeoutMs });
       }, timeoutMs);
       this.pending.set(id, (r) => { clearTimeout(timer); resolve(r); });
-      this.worker!.postMessage({ id, source, stdin });
+      this.worker!.postMessage({ id, source, stdin, files: options.files, argv: options.argv });
     });
   }
 }

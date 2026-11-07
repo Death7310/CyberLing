@@ -11,10 +11,17 @@ export interface RunResult {
   ms: number;
 }
 
+export interface RunOptions {
+  /** Files to create in the working directory before the run. */
+  files?: Record<string, string>;
+  /** Command-line arguments after the program name. */
+  argv?: string[];
+}
+
 export interface CodeRunner {
   readonly language: RunnableLanguage;
   /** Human-readable description of how code is executed, shown in Settings. */
   readonly description: string;
   available(): Promise<boolean>;
-  run(source: string, stdin?: string, timeoutMs?: number): Promise<RunResult>;
+  run(source: string, stdin?: string, timeoutMs?: number, options?: RunOptions): Promise<RunResult>;
 }

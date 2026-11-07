@@ -62,6 +62,10 @@ export interface ContrastNote {
 export interface Test {
   description: string;
   stdin?: string;
+  /** Files created in the program's working directory before it runs (name -> contents). For file-handling lessons. */
+  files?: Record<string, string>;
+  /** Command-line arguments (sys.argv[1:]) for argparse lessons. */
+  argv?: string[];
   expectedStdout: string;
   /** 'exact' compares trimmed output; 'contains' checks a substring; 'regex' tests a pattern against the full output. */
   match?: 'exact' | 'contains' | 'regex';

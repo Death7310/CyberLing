@@ -1,11 +1,13 @@
 /// <reference lib="webworker" />
 // Runs Python inside a Web Worker so a runaway loop never freezes the UI; the main thread kills the worker on timeout.
 
-type Req = { id: number; source: string; stdin: string };
+type Req = { id: number; source: string; stdin: string; files?: Record<string, string>; argv?: string[] };
 type Res = { id: number; stdout: string; stderr: string; exitCode: number } | { id: number; error: string } | { ready: true } | { id: number; progress: string };
 
 interface PyodideLike {
   runPythonAsync(code: string): Promise<unknown>;
+  globals: { set(name: string, value: unknown): void };
+  toPy(value: unknown): unknown;
   setStdin(opts: { stdin: () => string | null; autoEOF?: boolean }): void;
   setStdout(opts: { batched: (s: string) => void }): void;
   setStderr(opts: { batched: (s: string) => void }): void;
@@ -40,7 +42,7 @@ self.onmessage = async (ev: MessageEvent<Req | { init: true; base: string; stdli
     try { await load(); } catch (e) { (self as unknown as Worker).postMessage({ id: -1, error: String(e) } satisfies Res); }
     return;
   }
-  const { id, source, stdin } = data;
+  const { id, source, stdin, files, argv } = data;
   try {
     const py = await load();
     let out = '';
@@ -50,8 +52,21 @@ self.onmessage = async (ev: MessageEvent<Req | { init: true; base: string; stdli
     py.setStdin({ stdin: () => (lineIdx < lines.length ? lines[lineIdx++] : null), autoEOF: true });
     py.setStdout({ batched: (s) => { out += s + '\n'; } });
     py.setStderr({ batched: (s) => { err += s + '\n'; } });
-    // Reset the user namespace so lessons don't leak state into each other.
-    await py.runPythonAsync('import sys\nfor _k in [k for k in list(globals()) if not k.startswith("_")]:\n    del globals()[_k]\n');
+    // Fresh working directory, argv and namespace for every run so tests never see each other's files or names.
+    py.globals.set('_cl_files', py.toPy(files ?? {}));
+    py.globals.set('_cl_argv', py.toPy(['main.py', ...(argv ?? [])]));
+    await py.runPythonAsync([
+      'import sys, os, tempfile',
+      'os.chdir(tempfile.mkdtemp())',
+      'for _n, _c in dict(_cl_files).items():',
+      '    os.makedirs(os.path.dirname(_n) or ".", exist_ok=True)',
+      '    open(_n, "w").write(_c)',
+      'sys.argv = list(_cl_argv)',
+      'for _k in [k for k in list(globals()) if not k.startswith("_")]:',
+      '    del globals()[_k]',
+      'for _m in [m for m in list(sys.modules) if m in ("ledger", "entry", "storage", "report", "cli")]:',
+      '    del sys.modules[_m]',
+    ].join('\n'));
     let exitCode = 0;
     try {
       await py.runPythonAsync(source);

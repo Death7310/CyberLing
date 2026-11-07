@@ -1,5 +1,5 @@
 import type { Track, TrackId } from './schema';
-import { python } from './tracks/python';
+import { python } from './tracks/python/index';
 import { c } from './tracks/c';
 import { cpp } from './tracks/cpp';
 import { csharp } from './tracks/csharp';

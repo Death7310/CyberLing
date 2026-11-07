@@ -30,7 +30,7 @@ export function CodeView({ step, draftKey, onDone, onAttempt }: { step: ModifySt
     const results: TestState[] = [];
     let lastRun: RunResult | null = null;
     for (const t of step.tests) {
-      const r = await runner.run(code, t.stdin ?? '');
+      const r = await runner.run(code, t.stdin ?? '', undefined, { files: t.files, argv: t.argv });
       lastRun = r;
       if (r.unavailable) { setAvailable(false); break; }
       results.push({ ok: r.exitCode === 0 && checkOutput(t, r.stdout), got: r.stdout + (r.stderr ? '\n' + r.stderr : '') });
@@ -62,7 +62,7 @@ export function CodeView({ step, draftKey, onDone, onAttempt }: { step: ModifySt
           <div className="test" key={i}>
             <span className={`dot ${tests[i] ? (tests[i]!.ok ? 'ok' : 'bad') : ''}`} />
             <div>
-              <div>{t.description}{t.stdin !== undefined && <span className="muted small"> · input: <code>{t.stdin.replace(/\n/g, '⏎')}</code></span>}</div>
+              <div>{t.description}{t.stdin !== undefined && <span className="muted small"> · input: <code>{t.stdin.replace(/\n/g, '⏎')}</code></span>}{t.argv && <span className="muted small"> · args: <code>{t.argv.join(' ')}</code></span>}{t.files && <span className="muted small"> · files: {Object.keys(t.files).join(', ')}</span>}</div>
               {tests[i] && !tests[i]!.ok && (
                 <div className="small muted">expected <code>{t.expectedStdout}</code>{t.match && t.match !== 'exact' ? ` (${t.match})` : ''}, got <code>{tests[i]!.got.trim() || '(nothing)'}</code></div>
               )}

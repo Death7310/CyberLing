@@ -1,5 +1,5 @@
 import type { RunnableLanguage } from '../curriculum/schema';
-import type { CodeRunner, RunResult } from './types';
+import type { CodeRunner, RunOptions, RunResult } from './types';
 
 /**
  * Compiled languages (C, C++, C#) are executed by a Piston-compatible service
@@ -32,7 +32,7 @@ export class RemoteRunner implements CodeRunner {
     return true;
   }
 
-  async run(source: string, stdin = '', timeoutMs = 15000): Promise<RunResult> {
+  async run(source: string, stdin = '', timeoutMs = 15000, options: RunOptions = {}): Promise<RunResult> {
     const ep = this.endpoint().trim().replace(/\/$/, '');
     const start = Date.now();
     if (!ep) return { stdout: '', stderr: '', exitCode: 1, timedOut: false, unavailable: 'No execution service configured. Open Settings to set one.', ms: 0 };
@@ -48,8 +48,9 @@ export class RemoteRunner implements CodeRunner {
           body: JSON.stringify({
             language: name,
             version: '*',
-            files: [{ name: FILE_NAMES[this.language] ?? 'main.txt', content: source }],
+            files: [{ name: FILE_NAMES[this.language] ?? 'main.txt', content: source }, ...Object.entries(options.files ?? {}).map(([name, content]) => ({ name, content }))],
             stdin,
+            args: options.argv ?? [],
             run_timeout: timeoutMs,
             compile_timeout: 15000,
           }),
