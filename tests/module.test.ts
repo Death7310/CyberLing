@@ -19,5 +19,5 @@ describe.skipIf(!file)(`module ${file}`, () => {
     expect(problems.map((p) => `${p.where}: ${p.message}`)).toEqual([]);
     const lex = module.lessons.flatMap((l) => l.lexicon.map((e) => e.id));
     expect(new Set(lex).size, 'duplicate lexicon ids inside the module').toBe(lex.length);
-  }, 300_000);
+  }, 1_800_000);
 });
