@@ -65,6 +65,7 @@ function validateStep(here: string, s: Step, problems: string[]) {
     }
     case 'modify':
     case 'create':
+      if (!['python', 'c', 'cpp', 'csharp'].includes(s.language)) problems.push(`${here}: ${s.kind} step uses non-runnable language ${s.language} (cloud tracks use fieldwork)`);
       if (!s.tests.length) problems.push(`${here}: ${s.kind} step has no tests`);
       if (!s.solution.trim()) problems.push(`${here}: ${s.kind} step has no reference solution`);
       break;

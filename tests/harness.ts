@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { CreateStep, ModifyStep, Module, Test, Track } from '../src/curriculum/schema';
@@ -7,7 +7,7 @@ import { validateTrack } from '../src/curriculum/validate';
 import { checkCloze, checkOutput, checkParsons } from '../src/learning/checkers';
 
 export const has = (bin: string) => spawnSync('which', [bin]).status === 0;
-export const toolFor: Record<string, string> = { python: 'python3', c: 'gcc', cpp: 'g++' };
+export const toolFor: Record<string, string> = { python: 'python3', c: 'gcc', cpp: 'g++', csharp: 'dotnet' };
 
 /** Run a reference solution (or any source) the way the app would: fresh cwd, fixture files, argv, stdin. */
 export function runSource(language: string, source: string, test: Test): string {
@@ -25,6 +25,20 @@ export function runSource(language: string, source: string, test: Test): string 
     const f = join(dir, language === 'c' ? 'main.c' : 'main.cpp'); writeFileSync(f, source);
     execFileSync(language === 'c' ? 'gcc' : 'g++', ['-Wall', '-Wextra', '-Werror', f, '-o', join(dir, 'a.out')], { encoding: 'utf8' });
     return execFileSync(join(dir, 'a.out'), test.argv ?? [], opts);
+  }
+  if (language === 'csharp') {
+    // Persistent project so each build is incremental (seconds, not a full restore).
+    const proj = join(tmpdir(), 'cyberling-test-dotnet');
+    mkdirSync(proj, { recursive: true });
+    const csproj = join(proj, 'Program.csproj');
+    if (!existsSync(csproj)) {
+      writeFileSync(csproj, '<Project Sdk="Microsoft.NET.Sdk">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net8.0</TargetFramework>\n    <ImplicitUsings>disable</ImplicitUsings>\n    <Nullable>disable</Nullable>\n    <AssemblyName>Program</AssemblyName>\n    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>\n  </PropertyGroup>\n</Project>\n');
+    }
+    writeFileSync(join(proj, 'Program.cs'), source);
+    const env = { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1', DOTNET_NOLOGO: '1', DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1' };
+    const build = spawnSync('dotnet', ['build', proj, '--nologo', '-v', 'q', '-c', 'Release', '-p:WarningLevel=3'], { encoding: 'utf8', env, timeout: 180000 });
+    if (build.status !== 0) { const e = new Error('C# build failed') as Error & { stderr: string }; e.stderr = (build.stdout + build.stderr).split('\n').filter((l) => /error CS/.test(l)).join('\n'); throw e; }
+    return execFileSync('dotnet', [join(proj, 'bin', 'Release', 'net8.0', 'Program.dll'), ...(test.argv ?? [])], { ...opts, env });
   }
   throw new Error('no local runner for ' + language);
 }

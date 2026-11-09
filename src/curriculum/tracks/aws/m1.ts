@@ -1,4 +1,4 @@
-import type { Lesson, Module, Track } from '../schema';
+import type { Lesson, Module } from '../../schema';
 
 const l11: Lesson = {
   id: 'aws-1-1',
@@ -64,32 +64,4 @@ Every CLI command has the same grammar: \`aws\`, the service, the action, then o
   ],
 };
 
-const planned = (id: string, title: string, goal: string, projectMilestone: string): Module => ({ id, title, goal, projectMilestone, lessons: [], status: 'planned' });
-
-export const aws: Track = {
-  id: 'aws',
-  title: 'Amazon Web Services',
-  tagline: 'Put your programs on the internet. Taught by shipping the Python Ledger as a real, tiny, serverless service.',
-  prerequisites: ['python'],
-  runnable: false,
-  notionalMachine: [
-    'Everything is an **API call**: the console, the CLI, boto3 and infrastructure-as-code all call the same operations.',
-    'Resources live in an **account** and (mostly) in a **region**; identity and permission come from **IAM**, which denies by default.',
-    'You pay for what exists and what runs. Every lesson ends with removing what it created.',
-    'A **managed service** is someone else\'s program you configure instead of write: storage (S3), compute (Lambda, EC2), databases (DynamoDB), routing (API Gateway).',
-    'Infrastructure is **code**: once you can describe it in a template, you can recreate it, review it and delete it reliably.',
-  ],
-  projectSpine: {
-    title: 'Ship the Ledger',
-    description: 'Deploy the Python Ledger as an HTTP API: a Lambda function behind API Gateway storing entries in DynamoDB, with logs in CloudWatch, defined as code, and torn down cleanly at the end.',
-  },
-  modules: [
-    { id: 'aws-m1', title: 'Accounts, identity, CLI', goal: 'Account, region, IAM, MFA, the CLI grammar, billing alarms.', projectMilestone: 'A safe account you can script against.', status: 'available', lessons: [l11] },
-    planned('aws-m2', 'Storage: S3', 'Buckets, objects, permissions, static hosting, the CLI and boto3.', 'Ledger exports saved to a bucket.'),
-    planned('aws-m3', 'Compute: Lambda', 'Functions, handlers, events, environment variables, logs.', 'A Lambda that classifies an entry.'),
-    planned('aws-m4', 'HTTP: API Gateway', 'Routes, integrations, request/response shapes, testing with curl.', 'POST /entries reaches the Lambda.'),
-    planned('aws-m5', 'Data: DynamoDB', 'Tables, keys, put/get/query, pricing model.', 'Entries persist in a table.'),
-    planned('aws-m6', 'Observe and secure', 'CloudWatch logs and metrics, IAM roles for services, least privilege.', 'The API has a role that can only touch its own table.'),
-    planned('aws-m7', 'Infrastructure as code', 'AWS SAM or CDK: define, deploy, update and delete the whole stack.', 'Ledger API v1.0: one command deploys, one command destroys.'),
-  ],
-};
+export const m1: Module = { id: 'aws-m1', title: 'Accounts, identity, CLI', goal: 'Account, region, IAM, MFA, the CLI grammar, billing alarms.', projectMilestone: 'A safe account you can script against.', status: 'available', lessons: [l11] };

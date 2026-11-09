@@ -7,6 +7,8 @@ import { m5 } from './m5';
 import { m6 } from './m6';
 import { m7 } from './m7';
 import { m8 } from './m8';
+import { m9 } from './m9';
+import { m10 } from './m10';
 
 export const python: Track = {
   id: 'python',
@@ -26,5 +28,5 @@ export const python: Track = {
     title: 'Ledger',
     description: 'A personal money tracker that starts as two printed lines and grows, module by module, into a command-driven program that stores entries, saves them to a file, reports totals by category, and has tests.',
   },
-  modules: [m1, m2, m3, m4, m5, m6, m7, m8],
+  modules: [m1, m2, m3, m4, m5, m6, m7, m8, m9, m10],
 };

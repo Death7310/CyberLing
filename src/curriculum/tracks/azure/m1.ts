@@ -1,4 +1,4 @@
-import type { Lesson, Module, Track } from '../schema';
+import type { Lesson, Module } from '../../schema';
 
 const l11: Lesson = {
   id: 'az-1-1',
@@ -64,32 +64,4 @@ The CLI grammar is the same shape as the AWS CLI: \`az\`, service, action, optio
   ],
 };
 
-const planned = (id: string, title: string, goal: string, projectMilestone: string): Module => ({ id, title, goal, projectMilestone, lessons: [], status: 'planned' });
-
-export const azure: Track = {
-  id: 'azure',
-  title: 'Microsoft Azure',
-  tagline: 'The same cloud ideas with Microsoft\'s names, taught by deploying LedgerSharp.',
-  prerequisites: ['csharp', 'aws'],
-  runnable: false,
-  notionalMachine: [
-    'Everything is an **API call** through Azure Resource Manager; the portal, the CLI and Bicep templates all go through it.',
-    'Containment: tenant → subscription → resource group → resource. Delete the group, delete the experiment.',
-    'Identity is **Entra ID**; permission is **RBAC** on a scope. Deny by default.',
-    'Managed services mirror AWS: Blob Storage ≈ S3, Functions ≈ Lambda, Cosmos DB / Table Storage ≈ DynamoDB, App Service ≈ a managed web host.',
-    'Infrastructure is code: **Bicep** describes a resource group\'s contents declaratively.',
-  ],
-  projectSpine: {
-    title: 'Ship LedgerSharp',
-    description: 'Deploy the C# LedgerSharp API to Azure: Functions or App Service for compute, Table Storage for entries, Application Insights for logs, all described in Bicep and deleted with one command.',
-  },
-  modules: [
-    { id: 'az-m1', title: 'Subscriptions, identity, CLI', goal: 'Tenant, subscription, resource group, Entra ID, the CLI grammar, budgets.', projectMilestone: 'A safe subscription you can script against.', status: 'available', lessons: [l11] },
-    planned('az-m2', 'Storage', 'Storage accounts, blobs, tables, SAS tokens, the CLI and the .NET SDK.', 'Ledger exports in Blob Storage.'),
-    planned('az-m3', 'Compute: Functions', 'Triggers, bindings, local development with Core Tools, deployment.', 'A Function that classifies an entry.'),
-    planned('az-m4', 'Web: App Service', 'Deploying an ASP.NET Core API, configuration, slots.', 'LedgerSharp API running on App Service.'),
-    planned('az-m5', 'Data: Table Storage and Cosmos DB', 'Partition keys, point reads, queries, pricing.', 'Entries persist in a table.'),
-    planned('az-m6', 'Observe and secure', 'Application Insights, managed identities, Key Vault, RBAC scopes.', 'The API uses a managed identity, no secrets in config.'),
-    planned('az-m7', 'Infrastructure as code', 'Bicep: parameters, modules, deployment, what-if, teardown.', 'LedgerSharp v1.0 on Azure: one deploy, one delete.'),
-  ],
-};
+export const m1: Module = { id: 'az-m1', title: 'Subscriptions, identity, CLI', goal: 'Tenant, subscription, resource group, Entra ID, the CLI grammar, budgets.', projectMilestone: 'A safe subscription you can script against.', status: 'available', lessons: [l11] };

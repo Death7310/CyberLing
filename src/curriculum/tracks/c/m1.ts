@@ -1,4 +1,4 @@
-import type { Lesson, Module, Track } from '../schema';
+import type { Lesson, Module } from '../../schema';
 
 const l11: Lesson = {
   id: 'c-1-1',
@@ -244,35 +244,4 @@ For doubles, scanf wants \`%lf\`. The prompt is printed separately with printf; 
   ],
 };
 
-const planned = (id: string, title: string, goal: string, projectMilestone: string): Module => ({ id, title, goal, projectMilestone, lessons: [], status: 'planned' });
-
-export const c: Track = {
-  id: 'c',
-  title: 'C',
-  tagline: 'The language of the machine. Memory, addresses and the compile step, taught against what you already know.',
-  prerequisites: ['python'],
-  runnable: true,
-  notionalMachine: [
-    'A **compiler** turns the whole file into machine code before anything runs. Grammar errors stop everything.',
-    'A **variable is a box** of fixed size and type at a fixed **address** in memory. Assignment copies a value into the box.',
-    '`&x` is the address of x; a **pointer** is a box that holds an address; `*p` is the box at that address.',
-    'Function calls push a **stack frame**; local boxes live in it and vanish on return. `malloc` reserves boxes that outlive the call, and you must `free` them.',
-    'An **array** is a row of boxes; its name decays to the address of the first one. C never checks that an index is in range.',
-    'A **string** is an array of chars ending with the zero byte `\\0`. Forget the terminator and functions keep reading.',
-    'Undefined behaviour is real: the compiler is allowed to assume you never do it, so "it worked on my machine" proves nothing.',
-  ],
-  projectSpine: {
-    title: 'Vault',
-    description: 'A record-keeping command-line tool. It starts by printing two lines and ends as a program that stores records in dynamically allocated memory, saves them to a binary file, and never leaks or overruns a buffer.',
-  },
-  modules: [
-    { id: 'c-m1', title: 'Compile, then run', goal: 'The compile step, main, printf/scanf, typed variables.', projectMilestone: 'Vault v0.1: reads two typed values and reports them.', status: 'available', lessons: [l11, l12, l13] },
-    planned('c-m2', 'Deciding and repeating', 'if/else with braces, while, for with counters, do/while, operators and precedence.', 'Vault v0.2: a menu loop that runs until the user chooses quit.'),
-    planned('c-m3', 'Functions and the stack', 'Prototypes, parameters by value, return, scope, the call stack as a model.', 'Vault v0.3: the menu actions become functions.'),
-    planned('c-m4', 'Arrays and strings', 'Fixed arrays, bounds, char arrays, the null terminator, the string.h functions and their traps.', 'Vault v0.4: records with names stored in arrays.'),
-    planned('c-m5', 'Structs', 'struct, typedef, arrays of structs, passing structs to functions.', 'Vault v0.5: a Record struct and an array of them.'),
-    planned('c-m6', 'Pointers and memory', '&, *, pointer arithmetic, malloc/free, ownership, valgrind/sanitizers.', 'Vault v0.6: records live in a growable heap array.'),
-    planned('c-m7', 'Files', 'FILE*, fopen/fclose, text and binary I/O, error checking.', 'Vault v0.7: records persist to disk.'),
-    planned('c-m8', 'Building real programs', 'Multiple files, headers, make, debugging with gdb, reading library code.', 'Vault v1.0: a multi-file project with a Makefile.'),
-  ],
-};
+export const m1: Module = { id: 'c-m1', title: 'Compile, then run', goal: 'The compile step, main, printf/scanf, typed variables.', projectMilestone: 'Vault v0.1: reads two typed values and reports them.', status: 'available', lessons: [l11, l12, l13] };

@@ -123,3 +123,22 @@ main.py selftest                  -> runs the built-in tests, prints: <n> tests 
 `report` output per category: `food: -40`. With no `ledger.json`, `balance` prints `Balance: 0` and `report` prints `Entries: 0` only.
 Built-in tests are plain functions using `assert` run by a `run_tests()` function (unittest is taught as a concept/predict step; its stderr output is not compared).
 Also include `if __name__ == "__main__": main()`.
+
+---
+
+# Beyond the Ledger: Modules 9 and 10
+
+The Ledger is finished at v1.0. Modules 9–10 keep its data model (`Entry(amount, category)` stored as `ledger.json` or CSV) and build **analysis tools** around it. They assume everything in Modules 1–8. No new project versions; each lesson's `create` step is a standalone tool over Ledger data, with `files` fixtures.
+
+## Module 9: Data
+- Comprehensions and generator expressions; `sorted(key=...)`, `itertools`, `collections.Counter/defaultdict`.
+- `csv` reading and writing (`DictReader`), converting between CSV and JSON ledgers.
+- `sqlite3` (in the standard library and available in-app): create a table from entries, `SELECT category, SUM(amount) ... GROUP BY`, parameters, why SQL for aggregation.
+- `statistics` (mean, median) and `datetime` parsing of fixed date strings in fixtures (never the current time).
+- Capstone tool `ledger_report.py`: reads `entries.csv` (`date,amount,category`), prints per-month totals sorted by month (`2026-01: -120`), the biggest expense category, and the median entry.
+
+## Module 10: Algorithms and growth
+- Recursion (sum a nested list of categories, binary search on sorted amounts), base cases, call-depth intuition.
+- Searching and sorting by hand (linear vs binary, selection sort) with operation counting; big-O as "how the count grows"; list vs dict vs set lookup; `heapq` for top-k; `functools.lru_cache`.
+- Reading tracebacks from deep recursion; iterative rewrites.
+- Capstone tool `insights.py`: given `entries.csv`, prints top-3 expense categories (`heapq.nlargest` on absolute totals), the running balance's minimum point (`Lowest balance: <n> on <date>`), and whether a budget (an `argv` integer) was ever exceeded (`Budget exceeded on <date>` or `Within budget`).
