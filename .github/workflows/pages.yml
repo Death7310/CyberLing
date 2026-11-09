@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages
 
 # Publishes the PWA at https://<owner>.github.io/<repo>/ on every push to the main development branch.
-# GitHub Pages must be enabled for the repository with source "GitHub Actions"
-# (Settings → Pages); configure-pages tries to enable it automatically.
+# One-time setup: the workflow token cannot enable Pages itself. In the repository go to
+# Settings → Pages → "Build and deployment" → Source: "GitHub Actions". After that, every
+# push to the branches below deploys automatically.
 on:
   push:
     branches: [main, master, 'claude/coding-education-platform-2uehb0']
@@ -33,8 +34,6 @@ jobs:
       - name: Build with the Pages base path
         run: npm run prepare:pyodide && npx vite build --base "/${{ github.event.repository.name }}/"
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
