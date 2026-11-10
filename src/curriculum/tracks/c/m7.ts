@@ -498,8 +498,12 @@ int read_int(const char *prompt) {
     for (;;) {
         printf("%s\n", prompt);
         int x;
-        if (scanf("%d", &x) == 1) {
+        int got = scanf("%d", &x);
+        if (got == 1) {
             return x;
+        }
+        if (got == EOF) {
+            return 0;
         }
         printf("Not a number, try again\n");
         if (discard_line() == EOF) {
@@ -655,7 +659,7 @@ int main(void) {
         { description: 'two bad answers first', stdin: 'x\ny\n3\n0', expectedStdout: 'Amount?\nNot a number, try again\nAmount?\nNot a number, try again\nAmount?\nAmount?\nTotal: 3' },
         { description: 'input ends without a 0', stdin: '4\n6', expectedStdout: 'Amount?\nAmount?\nAmount?\nTotal: 10' },
       ],
-      hint: 'In the failure branch: print the new message, then `if (discard_line() == EOF) break;` and `continue;` so the loop asks again. The break on EOF is what stops the loop when input runs out.',
+      hint: 'Keep the result of scanf in a variable: `EOF` means the input ran out (stop quietly); any other non-1 result is a bad token (print the message, `discard_line()`, `continue`).',
       solution: c`
 #include <stdio.h>
 
@@ -672,7 +676,9 @@ int main(void) {
     for (;;) {
         printf("Amount?\n");
         int amount;
-        if (scanf("%d", &amount) != 1) {
+        int got = scanf("%d", &amount);
+        if (got == EOF) break;
+        if (got != 1) {
             printf("Not a number, try again\n");
             if (discard_line() == EOF) break;
             continue;
@@ -711,8 +717,12 @@ int read_int(const char *prompt) {
     for (;;) {
         printf("%s\n", prompt);
         int x;
-        if (scanf("%d", &x) == 1) {
+        int got = scanf("%d", &x);
+        if (got == 1) {
             return x;
+        }
+        if (got == EOF) {
+            return 0;
         }
         printf("Not a number, try again\n");
         if (discard_line() == EOF) {
