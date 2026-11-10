@@ -28,7 +28,8 @@ export function runSource(language: string, source: string, test: Test): string 
   }
   if (language === 'csharp') {
     // Persistent project so each build is incremental (seconds, not a full restore).
-    const proj = join(tmpdir(), 'cyberling-test-dotnet');
+    // One project per process: concurrent test runs (e.g. parallel authors) must not share build output.
+    const proj = join(tmpdir(), `cyberling-test-dotnet-${process.pid}`);
     mkdirSync(proj, { recursive: true });
     const csproj = join(proj, 'Program.csproj');
     if (!existsSync(csproj)) {
