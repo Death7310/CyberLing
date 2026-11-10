@@ -313,7 +313,7 @@ Before deploying, \`sam local invoke ClassifyFunction --event events/post.json\`
         'Read the change set it prints (every line is Add on the first deploy), type y, and watch events until the final line reads `Successfully created/updated stack`.',
         'Run `aws cloudformation describe-stacks --stack-name cyberling-ledger --query "Stacks[0].StackStatus" --output text` and note the status string.',
         'Read the URL: `API=$(aws cloudformation describe-stacks --stack-name cyberling-ledger --query "Stacks[0].Outputs[?OutputKey==\'ApiUrl\'].OutputValue" --output text)`.',
-        'POST and GET: `curl -s -o /dev/null -w "%{http_code}\\n" -X POST "$API/entries" -H "content-type: application/json" -d \'{"amount": -40}\'` prints 200; `curl "$API/balance"` returns the sum. Then `sam logs -n ClassifyFunction --stack-name cyberling-ledger` shows your JSON log line.',
+        'POST and GET: `curl -s -o /dev/null -w "%{http_code}\\n" -X POST "$API/entries" -H "content-type: application/json" -d \'{"amount": -40}\'` prints 201; `curl "$API/balance"` returns the sum. Then `sam logs -n ClassifyFunction --stack-name cyberling-ledger` shows your JSON log line.',
         'Make one change (for example Timeout: 15 in Globals), run `sam build && sam deploy`, and confirm the change set lists one Modify on ClassifyFunction.',
         'Teardown: leave the stack running for Lesson 7-4, which removes it with `sam delete`. If you stop here, run `sam delete --stack-name cyberling-ledger --no-prompts` now.',
       ],
