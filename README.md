@@ -10,7 +10,7 @@ One codebase ships as:
 
 Every push builds all of them on GitHub Actions (see the Actions tab: `cyberling-desktop-*`, `cyberling-debug-apk`, `cyberling-web`).
 
-Tracks: **Python → C → C++ → C# → AWS → Azure**. Python is fully authored (8 modules, 38 lessons, from `print` to a tested command-line tool) and C has its first module; the other tracks are fully designed (modules, milestones, notional machine) and awaiting content. See `docs/ROADMAP.md` for what is authored and what is not.
+Tracks: **Python → C → C++ → C# → AWS → Azure**. All six are fully authored: 46 modules, 203 lessons, 1,116 exercise steps, 868 lexicon cards, about 80 hours of lesson time. Every reference solution in the programming tracks is executed against its tests by the test suite (python3, gcc, g++, .NET 8); the cloud tracks are fieldwork performed in the learner's own account with verifiable outcomes. See `docs/ROADMAP.md`.
 
 ## Quick start (laptop)
 

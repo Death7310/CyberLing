@@ -2,22 +2,23 @@
 
 ## Authored today
 
-| Track | Modules authored | Lessons | Project state reached |
-|---|---|---|---|
-| Python | 1–8 (complete) | 38 | Ledger v1.0: a tested, file-backed, argparse command-line tool built from a dataclass and a class |
-| C | 1 Compile, then run | 3 | Vault v0.1 (printf/scanf, typed variables) |
-| AWS | 1 Accounts, identity, CLI | 1 | Safe account, CLI verified |
-| Azure | 1 Subscriptions, identity, CLI | 1 | Safe subscription, CLI verified |
-| C++ | 0 (7 designed) | 0 | — |
-| C# | 0 (7 designed) | 0 | — |
+| Track | Modules | Lessons | Steps | Lexicon | Lesson time | Project reached |
+|---|---|---|---|---|---|---|
+| Python | 10 | 49 | 266 | 197 | 16.8 h | Ledger v1.0 (tested argparse CLI) + data and algorithms tools |
+| C | 8 | 36 | 202 | 157 | 13.1 h | Vault v1.0 (heap-backed records, files, argv verbs) |
+| C++ | 7 | 33 | 180 | 142 | 11.8 h | Vault++ v1.0 (classes, RAII, templates, selftest) |
+| C# | 7 | 35 | 212 | 153 | 12.8 h | LedgerSharp v1.0 (LINQ, JSON, async, CLI) + minimal API run locally |
+| AWS | 7 | 25 | 126 | 117 | 12.4 h | Ledger API: S3, Lambda, API Gateway, DynamoDB, IAM, SAM; torn down |
+| Azure | 7 | 25 | 130 | 102 | 12.6 h | LedgerSharp API: Storage, Functions, App Service, Table Storage, identity, Bicep; torn down |
+| **Total** | **46** | **203** | **1,116** | **868** | **79.5 h** | |
 
-Every designed module has a concept list and a project milestone in the app.
+Verification: `npm test` validates every module against the method rules and executes every reference solution (and checks every "modify" starter fails) with real toolchains. Project contracts per track are in `docs/*_SPINE.md`.
 
 ## Order of work
 
-1. **C modules 2–8.** The pointer/memory modules (5–6) are where the notional machine earns its keep; author them with trace-style `predict` steps on memory diagrams.
-3. **C++ and C# tracks**, contrastively against C and Python.
-4. **AWS and Azure modules 2–7**, each lesson ending in teardown.
+1. **Learner feedback loop.** Instrument nothing by default (no telemetry), but add an in-app "report a problem with this step" that drafts a GitHub issue, so wrong answers and unclear prompts surface.
+2. **Second pass on content.** Each track was written module by module by different authors against a shared spine; a read-through per track for voice and cross-references is the next quality step.
+3. **Offline compiled languages** on phone/web (WASM clang for C/C++) and **signing** for desktop installers.
 
 ## Platform work
 
